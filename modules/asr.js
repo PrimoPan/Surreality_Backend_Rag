@@ -1,19 +1,24 @@
 // modules/asr.js
+require('dotenv').config();
 const tencentcloud = require('tencentcloud-sdk-nodejs-asr');
-const fs = require('fs');
 
-// 配置腾讯云认证信息
-const secretConfig = JSON.parse(fs.readFileSync('secretkey.json', 'utf8'));
+// --- 从 .env 读取密钥 ---
+const secretId  = process.env.TENCENT_SECRET_ID;
+const secretKey = process.env.TENCENT_SECRET_KEY;
+if (!secretId || !secretKey) {
+  throw new Error('缺少 TENCENT_SECRET_ID / TENCENT_SECRET_KEY，请在 .env 中配置');
+}
 
+// --- 配置客户端 ---
 const clientConfig = {
   credential: {
-    secretId: secretConfig.SecretId,
-    secretKey: secretConfig.SecretKey,
+    secretId,
+    secretKey,
   },
-  region: 'ap-guangzhou', // 选择适合的区域
+  region: process.env.TENCENT_REGION || 'ap-guangzhou', // 可通过 .env 配置
   profile: {
     httpProfile: {
-      endpoint: 'asr.tencentcloudapi.com',
+      endpoint: process.env.TENCENT_ASR_ENDPOINT || 'asr.tencentcloudapi.com',
     },
   },
 };
@@ -23,7 +28,6 @@ const client = new tencentcloud.asr.v20190614.Client(clientConfig);
 // 语音识别的任务函数
 async function recognizeAudio(audioData, lan = 'CHN') {
   let engineModelType;
-
   switch (lan) {
     case 'ENG':
       engineModelType = '16k_en';
@@ -54,8 +58,7 @@ async function recognizeAudio(audioData, lan = 'CHN') {
   }
 }
 
-
-// 查询任务结果
+// 查询任务结果（递归轮询）
 async function queryTaskResult(taskId) {
   const params = { TaskId: taskId };
 
@@ -67,7 +70,7 @@ async function queryTaskResult(taskId) {
         return { status: StatusStr, result: Result };
       } else if (Status === 0 || Status === 1) {
         await new Promise(resolve => setTimeout(resolve, 2000));
-        return queryTaskResult(taskId);  // 递归调用继续查询
+        return queryTaskResult(taskId);
       } else if (Status === 3) {
         return { status: StatusStr, errorMsg: ErrorMsg };
       }
@@ -80,4 +83,3 @@ async function queryTaskResult(taskId) {
 }
 
 module.exports = { recognizeAudio };
-

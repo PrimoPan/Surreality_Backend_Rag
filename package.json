@@ -12,6 +12,7 @@
   "dependencies": {
     "cors": "^2.8.5",
     "cosine-similarity": "^1.0.1",
+    "dotenv": "^17.2.1",
     "express": "^4.21.2",
     "lodash": "^4.17.21",
     "mongodb": "^6.16.0",

@@ -10,6 +10,7 @@
  *   node scripts/enbed_artists.js --rebuild              # 先清空集合再重算
  */
 
+import 'dotenv/config.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -27,11 +28,17 @@ const DB_NAME   = 'aaa_project';
 const COLL_NAME = 'artists_embeddings';
 
 /* -------- 2. HunYuan SDK ----------------------------------- */
-const { SecretId, SecretKey } = JSON.parse(fs.readFileSync('secretkey.json', 'utf8'));
+const SecretId  = process.env.TENCENT_SECRET_ID;
+const SecretKey = process.env.TENCENT_SECRET_KEY;
+if (!SecretId || !SecretKey) {
+  console.error('❌ 缺少 TENCENT_SECRET_ID / TENCENT_SECRET_KEY，请在 .env 中配置');
+  process.exit(1);
+}
+
 const hunyuanClient = new tencentcloud.hunyuan.v20230901.Client({
   credential: { secretId: SecretId, secretKey: SecretKey },
-  region   : 'ap-guangzhou',
-  profile  : { httpProfile: { endpoint: 'hunyuan.tencentcloudapi.com' } }
+  region   : process.env.TENCENT_REGION || 'ap-guangzhou',
+  profile  : { httpProfile: { endpoint: process.env.TENCENT_ENDPOINT || 'hunyuan.tencentcloudapi.com' } }
 });
 
 /* -------- 3. util: 组装待嵌入文本 --------------------------- */
