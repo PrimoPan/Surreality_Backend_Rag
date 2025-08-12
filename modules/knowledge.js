@@ -13,7 +13,7 @@ const tencentcloud    = require('tencentcloud-sdk-nodejs-hunyuan');
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017';
 const DB_NAME   = 'aaa_project';
 const COLL_NAME = 'artists_embeddings';
-const TOP_K     = 8;       // 返回条数：给 RAG 足够素材
+const TOP_K     = 10;       // 返回条数：给 RAG 足够素材
 const MIN_SIM   = 0.15;    // 相似度下限（0-1)
 
 /* ③ 混元向量化 Client */

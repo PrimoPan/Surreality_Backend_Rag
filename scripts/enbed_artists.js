@@ -39,9 +39,9 @@ function recordToText(r){
   return [
     `关键词#${r.keywords}`,
     r.artist,
-    (r.artistIntroCN || r.artistIntroEN || '').slice(0, 400),
+    (r.artistIntroCN || r.artistIntroEN || '').slice(0, 1000),
     r.workTitleCN || r.workTitleEN || '',
-    (r.workDescCN || r.workDescEN || '').slice(0, 400)
+    (r.workDescCN || r.workDescEN || '').slice(0, 1000)
   ].join('\n').trim();
 }
 

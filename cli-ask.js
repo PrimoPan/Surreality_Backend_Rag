@@ -10,7 +10,7 @@
 const readline = require('readline');
 const http     = require('http');          // 也可以换成 node-fetch / axios
 
-const ENDPOINT = 'http://127.0.0.1:2126/api/gpttest';
+const ENDPOINT = 'http://127.0.0.1:2123/api/gpttest';
 
 function askApi(question) {
   return new Promise((resolve, reject) => {

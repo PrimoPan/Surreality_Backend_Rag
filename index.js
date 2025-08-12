@@ -34,21 +34,37 @@ app.post('/api/sendVoice', upload.none(), async (req, res) => {
   }
 });
 
-// **GPTTest - 混元大模型接口**
+// --------------- 30s 语速估算（4 汉字/秒，2.5 英词/秒）---------------
+const maxSeconds = 30;
+function speechSeconds(str = '') {
+  const zh = (str.match(/[\u4e00-\u9fff]/g) || []).length;               // 中文字数
+  const en = str.replace(/[\u4e00-\u9fff]/g, ' ').trim()
+                .split(/\s+/).filter(Boolean).length;                   // 英单词数
+  return Math.max(zh / 4, en / 2.5);
+}
+
+// ------------------------ GPTTest ------------------------
 app.post('/api/gpttest', async (req, res) => {
   const { message } = req.body;
-  if (!message) {
+  console.log(message);
+  if (!message?.trim())
     return res.status(400).json({ success: false, message: 'Message field is required' });
-  }
 
   try {
-    const { text } = await getGPTResponse(message);
-    res.json({ success: true, answer: text });
+    // 给模型加前置指令，先从源头控长
+    const prompt   = `请在 30 秒之内、仅用中文/英文/粤语回答：\n${message.trim()}`;
+    const { text } = await getGPTResponse(prompt);      // 假设 getGPTResponse 返回 { text }
 
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    // 二次校验，双保险
+    if (speechSeconds(text) > maxSeconds)
+      return res.status(400).json({ success: false, message: 'Answer exceeds 30-second limit' });
+
+    res.json({ success: true, answer: text });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 });
+
 
 // **Text to Speech - 文字转语音接口**
 app.post('/api/textToSpeech', async (req, res) => {

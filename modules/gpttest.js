@@ -46,7 +46,7 @@ async function getGPTResponse(question) {
   /* === 1. RAG 向量检索 === */
   let docs = [];
   try {
-    docs = await search(question, 25);         // 挑 8 条上下文，比原 k=3 丰富
+    docs = await search(question, );         // 挑 8 条上下文，比原 k=3 丰富
   } catch (err) {
     console.error('[RAG] 检索失败：', err);
   }
